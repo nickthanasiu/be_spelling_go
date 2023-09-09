@@ -3,11 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -31,25 +33,34 @@ func main() {
 		}
 	}()
 
-	/*
-		var puzzles []bson.M
-
-		collection := client.Database("test").Collection("puzzles")
-		cursor, err := collection.Find(context.TODO(), bson.D{{}})
-		if err != nil {
-			panic(err)
-		}
-
-		if err = cursor.All(context.TODO(), &puzzles); err != nil {
-			panic(err)
-		}
-
-		fmt.Println(puzzles)
-
-	*/
+	puzzleCollection := client.Database("test").Collection("puzzles")
 
 	router := gin.Default()
 	router.Use(static.Serve("/", static.LocalFile("./assets", true)))
+
+	api := router.Group("/api")
+	{
+		api.GET("/puzzles", func(ctx *gin.Context) {
+			var puzzles []bson.M
+			cursor, err := puzzleCollection.Find(ctx, bson.M{})
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+
+			if err = cursor.All(ctx, &puzzles); err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+
+			ctx.JSON(http.StatusOK, puzzles)
+		})
+	}
+
 	router.Run(":8080")
 }
 
