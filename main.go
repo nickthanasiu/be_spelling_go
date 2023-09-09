@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
@@ -41,8 +42,16 @@ func main() {
 	api := router.Group("/api")
 	{
 		api.GET("/puzzles", func(ctx *gin.Context) {
+			limit := ctx.DefaultQuery("limit", "10")
+			l, err := strconv.ParseInt(limit, 10, 64)
+			if err != nil {
+				panic(err)
+			}
+
 			var puzzles []bson.M
-			cursor, err := puzzleCollection.Find(ctx, bson.M{})
+
+			fOpts := options.FindOptions{Limit: &l}
+			cursor, err := puzzleCollection.Find(ctx, bson.M{}, &fOpts)
 			if err != nil {
 				ctx.JSON(http.StatusInternalServerError, gin.H{
 					"error": err.Error(),
