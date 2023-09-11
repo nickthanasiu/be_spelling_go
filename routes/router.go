@@ -37,9 +37,21 @@ func SetRouter() *gin.Engine {
 
 			ctx.JSON(http.StatusOK, response)
 		})
+
+		api.GET("/puzzles/:id", func(ctx *gin.Context) {
+			puzzleId := ctx.Param("id")
+
+			response, err := services.GetPuzzleById(puzzleId)
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+			}
+
+			ctx.JSON(http.StatusOK, response)
+		})
 	}
 
-	// Is this even necessary though?
 	router.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{}) })
 
 	return router

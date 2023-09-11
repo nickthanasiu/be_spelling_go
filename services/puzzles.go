@@ -5,10 +5,12 @@ import (
 	"bespelling/models"
 	"context"
 	"encoding/base64"
+	"log"
 	"time"
 
 	"github.com/relvacode/iso8601"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -56,7 +58,7 @@ func GetPuzzles(limit int64, cursor string, sort string) (PuzzlesResponse, error
 
 	decodedCursor, err := base64.StdEncoding.DecodeString(cursor)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	var filter bson.D
@@ -95,6 +97,27 @@ func GetPuzzles(limit int64, cursor string, sort string) (PuzzlesResponse, error
 	response = PuzzlesResponse{
 		Puzzles: puzzles,
 		Cursor:  nextCursor,
+	}
+
+	return response, nil
+}
+
+func GetPuzzleById(id string) (models.Puzzle, error) {
+	puzzleCollection := db.OpenCollection("puzzles")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var response models.Puzzle
+
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return response, err
+	}
+
+	err = puzzleCollection.FindOne(ctx, bson.D{{Key: "_id", Value: objID}}).Decode(&response)
+	if err != nil {
+		return response, err
 	}
 
 	return response, nil

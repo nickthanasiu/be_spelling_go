@@ -3,7 +3,7 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Puzzle struct {
-	ID           primitive.ObjectID `bson:"_id"`
+	ID           primitive.ObjectID `bson:"_id" json:"_id"`
 	CenterLetter string             `json:"centerLetter"`
 	Letters      []string           `json:"letters"`
 	Pangrams     []string           `json:"pangrams"`
