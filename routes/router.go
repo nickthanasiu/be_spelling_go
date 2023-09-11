@@ -39,7 +39,6 @@ func SetRouter() *gin.Engine {
 		})
 	}
 
-	// Is this even necessary though?
 	router.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{}) })
 
 	return router

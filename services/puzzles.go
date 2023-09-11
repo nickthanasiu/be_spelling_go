@@ -99,3 +99,19 @@ func GetPuzzles(limit int64, cursor string, sort string) (PuzzlesResponse, error
 
 	return response, nil
 }
+
+func GetPuzzleById(id string) (models.Puzzle, error) {
+	puzzleCollection := db.OpenCollection("puzzles")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var response models.Puzzle
+
+	err := puzzleCollection.FindOne(ctx, bson.D{{Key: "_id", Value: id}}).Decode(&response)
+	if err != nil {
+		return response, err
+	}
+
+	return response, nil
+}
