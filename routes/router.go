@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"bespelling/models"
 	"bespelling/services"
 	"net/http"
 	"strconv"
@@ -49,6 +50,23 @@ func SetRouter() *gin.Engine {
 			}
 
 			ctx.JSON(http.StatusOK, response)
+		})
+
+		api.POST("/puzzles", func(ctx *gin.Context) {
+			var puzzle models.Puzzle
+
+			if err := ctx.BindJSON(&puzzle); err != nil {
+				ctx.AbortWithError(http.StatusBadRequest, err)
+				return
+			}
+
+			result, err := services.AddPuzzle(puzzle)
+			if err != nil {
+				ctx.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+
+			ctx.JSON(http.StatusCreated, result)
 		})
 	}
 

@@ -6,11 +6,13 @@ import (
 	"context"
 	"encoding/base64"
 	"log"
+	"math"
 	"time"
 
 	"github.com/relvacode/iso8601"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -121,4 +123,70 @@ func GetPuzzleById(id string) (models.Puzzle, error) {
 	}
 
 	return response, nil
+}
+
+func AddPuzzle(puzzle models.Puzzle) (*mongo.InsertOneResult, error) {
+	puzzleCollection := db.OpenCollection("puzzles")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	puzzle.ID = primitive.NewObjectID()
+	puzzle.Rankings = GenerateRankings(puzzle.Pangrams, puzzle.Words)
+
+	result, err := puzzleCollection.InsertOne(ctx, puzzle)
+	if err != nil {
+		return result, err
+	}
+
+	return result, nil
+}
+
+func GenerateRankings(pangrams, words []string) []models.Ranking {
+
+	// Pangram is worth its length plus 7
+	CalculatePangramScore := func(pangram string) int {
+		return len(pangram) + 7
+	}
+
+	// Four letter words are worth one point, while larger words are worth their length
+	CalculateWordScore := func(word string) int {
+		if len(word) > 4 {
+			return len(word)
+		}
+		return 1
+	}
+
+	// Calculate maximum score
+	var maxScore int
+
+	for _, word := range words {
+		maxScore += CalculateWordScore(word)
+	}
+
+	for _, pangram := range pangrams {
+		maxScore += CalculatePangramScore(pangram)
+	}
+
+	PercentToScore := func(percentage int) int {
+		score := math.Floor(
+			float64(maxScore) * (float64(percentage) / 100),
+		)
+		return int(score)
+	}
+
+	rankings := []models.Ranking{
+		{Name: "Beginner", Threshold: PercentToScore(0)},
+		{Name: "Good Start", Threshold: PercentToScore(2)},
+		{Name: "Moving Up", Threshold: PercentToScore(5)},
+		{Name: "Good", Threshold: PercentToScore(8)},
+		{Name: "Solid", Threshold: PercentToScore(15)},
+		{Name: "Nice", Threshold: PercentToScore(25)},
+		{Name: "Great", Threshold: PercentToScore(40)},
+		{Name: "Amazing", Threshold: PercentToScore(50)},
+		{Name: "Genius", Threshold: PercentToScore(70)},
+		{Name: "Queen Bee", Threshold: PercentToScore(maxScore)},
+	}
+
+	return rankings
 }
