@@ -13,7 +13,7 @@ func SetRouter() *gin.Engine {
 	router := gin.Default()
 
 	// Serve our static React app
-	router.Use(static.Serve("/", static.LocalFile("./assets", true)))
+	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
 
 	api := router.Group("/api")
 	{
