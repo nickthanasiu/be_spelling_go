@@ -1,11 +1,13 @@
-import { useRecoilValue } from "recoil";
-import { lettersAtom, centerLetterSelector } from "../../state";
 import Hive from "./Hive";
 
-const HiveContainer = () => {
-    const letters = useRecoilValue(lettersAtom);
-    const centerLetter = useRecoilValue(centerLetterSelector);
 
+interface Props {
+    letters: string[];
+    centerLetter: string;
+    answersListExpanded: boolean;
+}
+
+const HiveContainer = ({ letters, centerLetter }: Props) => {
     return <Hive letters={letters} centerLetter={centerLetter} />
 };
 

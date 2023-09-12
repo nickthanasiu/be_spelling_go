@@ -2,12 +2,23 @@ import styled from 'styled-components';
 import { device } from '../styles/device';
 import Status from './status/Status';
 import Controls from './controls/Controls';
+import { PuzzleState } from '../state';
 
-function GameField() {
+interface Props {
+    puzzle: PuzzleState;
+}
+
+function GameField(props: Props) {
+    const { letters, centerLetter } = props.puzzle;
+
     return (
         <StyledGameField>
-            <Status />
-            <Controls />
+            <Status {...props} />
+            <Controls 
+                letters={letters}
+                centerLetter={centerLetter}
+                answersListExpanded={false} // @TODO: FIx this !!!!
+            />
         </StyledGameField>
     )
 }

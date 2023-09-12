@@ -1,15 +1,8 @@
 import styled from 'styled-components';
-import { useRecoilValue } from 'recoil';
-import { totalScoreAtom } from '../../state';
 import { PuzzleRankingLevel } from '../../shared/types';
-import { rankingSelector } from '../../state';
 
 
-const ScoreMarker = () => {
-    
-    const userScore = useRecoilValue(totalScoreAtom);
-    const ranking = useRecoilValue(rankingSelector);
-
+const ScoreMarker = ({ ranking, score }: { ranking: PuzzleRankingLevel, score: number}) => {
     const calculatePosition = (ranking: PuzzleRankingLevel) => {
         switch (ranking) {
             case 'Good Start':
@@ -36,7 +29,7 @@ const ScoreMarker = () => {
 
     return (
         <StyledScoreMarker leftPosition={calculatePosition(ranking)}>
-            <span>{userScore}</span>
+            <span>{score}</span>
         </StyledScoreMarker>
     );
 };

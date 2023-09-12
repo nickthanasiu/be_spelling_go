@@ -1,18 +1,25 @@
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import ProgressBar from './ProgressBar';
-import { rankingSelector } from '../../state';
+import { PuzzleState } from '../../state';
+import { deriveRankingFromScore } from '../../state/ranking';
+import { deriveTotalScoreFromWordsList } from '../../state/score';
+import { answersById } from '../../state/answers';
 
-const Progress = () => {
-    
-    const ranking = useRecoilValue(rankingSelector);
+const Progress = (props: { puzzle: PuzzleState }) => {
+
+    const { pangrams, rankings } = props.puzzle;
+    const answers = useRecoilValue(answersById(props.puzzle._id));
+
+    const score = deriveTotalScoreFromWordsList(answers, pangrams);
+    const ranking = deriveRankingFromScore(score, rankings);
 
     return (
         <StyledProgress>
             <Ranking>
                 {ranking}
             </Ranking>
-            <ProgressBar />
+            <ProgressBar ranking={ranking} score={score} />
         </StyledProgress>
     );
 };

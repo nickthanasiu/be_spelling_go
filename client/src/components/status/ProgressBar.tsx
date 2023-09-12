@@ -1,13 +1,14 @@
 import styled from 'styled-components';
 import ScoreMarker from './ScoreMarker';
+import { PuzzleRankingLevel } from '../../shared/types';
 
-const ProgressBar = () => {
+const ProgressBar = (props: { ranking: PuzzleRankingLevel, score: number }) => {
     return (
         <StyledProgressBar>
             <Line>
                 {[...Array(9)].map((el, i) => <Dot key={i} />)}
             </Line>
-            <ScoreMarker />
+            <ScoreMarker {...props} />
         </StyledProgressBar>
     );
 };

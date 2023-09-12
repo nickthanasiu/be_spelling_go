@@ -3,6 +3,8 @@ import { totalScoreAtom } from "./score";
 import { puzzleAtom } from "./puzzle";
 import { PuzzleRankingLevel } from "../shared/types";
 
+
+/*
 export const rankingSelector = selector<PuzzleRankingLevel>({
     key: 'rankingSelector',
     get: ({ get }) => {
@@ -19,6 +21,8 @@ export const rankingAtom = atom({
     key: 'rankingAtom',
     default: rankingSelector
 });
+
+*/
 
 export function deriveRankingFromScore(score: number, rankings: any[]) {
 

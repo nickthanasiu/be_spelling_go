@@ -2,11 +2,16 @@ import styled from 'styled-components';
 import { device } from '../../styles/device';
 import Progress from './Progress';
 import WordList from './WordList';
+import { PuzzleState } from '../../state';
 
-function Status() {
+interface Props {
+    puzzle: PuzzleState;
+}
+
+function Status(props: Props) {
     return (
         <StyledStatus>
-            <Progress />
+            <Progress {...props} />
             <WordList />
         </StyledStatus>
     );

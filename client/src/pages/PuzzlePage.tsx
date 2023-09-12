@@ -1,38 +1,20 @@
-import { useState, useEffect } from "react";
-import { useRecoilState, useResetRecoilState } from "recoil";
+import { Suspense } from "react";
+import { useRecoilValue } from "recoil";
 import { useParams } from "react-router-dom";
-import styled from "styled-components";
-import { device } from "../styles/device";
-import { puzzleAtom, foundWordsAtom } from "../state";
-import ApiClient from "../api/client";
+import styled, { keyframes } from "styled-components";
+
 import GameField from "../components/GameField";
+import BigHeading from "../components/BigHeading";
 import LoadingAnimation from "../components/loading/LoadingAnimation";
-import H1 from "../components/H1";
 import { Link } from "react-router-dom";
+import { puzzleQueryById } from "../state/puzzle";
 
 const PuzzlePage = () => {
     const { id } = useParams();
 
-    const [puzzle, setPuzzle] = useRecoilState(puzzleAtom);
-    const [loaded, setLoaded] = useState(false);
-    const clearFoundWordsList = useResetRecoilState(foundWordsAtom);
+    const currentPuzzle = useRecoilValue(puzzleQueryById(id as string));
 
-    useEffect(() => {
-        async function getPuzzleById() {
-            const response = await ApiClient.get<any>(`/puzzles/${id}`);
-            setPuzzle(response);
-            setLoaded(true);
-        }
-
-        getPuzzleById();
-
-        return () => {
-            // Reset foundWords atom when leaving puzzle page
-            clearFoundWordsList();
-        };
-    }, [id]);
-
-    const formattedDate =new Date(puzzle.date).toLocaleDateString('en-US', {
+    const formattedDate =new Date(currentPuzzle.date).toLocaleDateString('en-US', {
         month: 'long',
         day: 'numeric',
         year: 'numeric',
@@ -40,46 +22,82 @@ const PuzzlePage = () => {
     });
 
     return (
-        <div>
-            <StyledHeader>
-                <H1>
+        <StyledPuzzlePage>
+            <FadeOutFallback>
+                <LoadingAnimation /* color="white" *//>
+            </FadeOutFallback>
+            <header>
+                <BigHeading>
                     <Link to="/">
                         Be Spelling
                     </Link>
-                    <DateSpan>
-                        {puzzle?.date && formattedDate}
-                    </DateSpan>
-                </H1>
-            </StyledHeader>
-            {!loaded ? <LoadingAnimation /> : <GameField />}
-        </div>
+                    <span className="date">
+                        {formattedDate}
+                    </span>
+                </BigHeading>
+            </header>
+            <GameField puzzle={currentPuzzle} />
+        </StyledPuzzlePage>
     );
 };
 
-export default PuzzlePage;
+export default function PuzzlePageContainer() {
+    return (
+        <Suspense fallback={
+            <StyledPuzzlePageFallback>
+                <LoadingAnimation /*color="white"*/ />
+            </StyledPuzzlePageFallback>
+        }>
 
-const StyledHeader = styled.header`
-    border-bottom: 1px solid #bfbfbf;
-    padding: 24px 24px;
+            <PuzzlePage />
+        </Suspense>
+    );
+}
 
-    
-    @media (min-width: ${device.desktop}) {
+
+const StyledPuzzlePage = styled.div`
+    position: relative;
+
+    header {
         padding: 24px 82px;
-        
+        border-bottom: 1px solid #bfbfbf;
+    }
+
+    .date {
+        font-size: 24px;
+        font-weight: 300;
+        font-family: sans-serif;
+        margin-left: 16px;
+    }
+
+`;
+
+const StyledPuzzlePageFallback = styled.div`
+    width: 100%;
+    height: 100vh;
+    background-color: #f7da21;
+
+    display: flex;
+`;
+
+const fadeOut = keyframes`
+    from {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    to {
+        opacity: 0;
+        visibility: hidden;
     }
 `;
 
-const DateSpan = styled.span`
-    font-weight: 300;
-    font-family: sans-serif;
+const FadeOutFallback = styled(StyledPuzzlePageFallback)`
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10000;
 
-    font-size: 24px;
-    display: block;
-    margin-left: 2px;
-
-    @media (min-width: ${device.desktop}) {
-        font-size: 28px;
-        display: inline;
-        margin-left: 16px;
-    }
+    animation: ${fadeOut} 1s;
+    animation-fill-mode: forwards;
 `;

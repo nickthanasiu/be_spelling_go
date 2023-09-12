@@ -1,4 +1,4 @@
-import { atom, selector } from "recoil";
+import { atom, selector, selectorFamily } from "recoil";
 import ApiClient from "../api/client";
 import { PuzzleState } from "./types";
 import { PuzzleResponse } from '../shared/types';
@@ -25,6 +25,12 @@ export const puzzleAtom = atom({
     key: 'puzzleAtom',
     default: {} as PuzzleState
 });
+
+export const puzzleQueryById = selectorFamily({
+    key: 'currentPuzzleQuery',
+    get: (puzzleId: string) => async () => 
+        await ApiClient.get<PuzzleState>(`/puzzles/${puzzleId}`)
+})
 
 export const lettersSelector = selector<string[]>({
     key: 'lettersSelector',

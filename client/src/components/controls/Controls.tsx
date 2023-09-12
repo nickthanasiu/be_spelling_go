@@ -6,15 +6,21 @@ import HiveInput from "./HiveInput";
 import HiveContainer from "./HiveContainer";
 import HiveActions from "./HiveActions";
 
-function Controls() {
-    const foundWordsListExpanded = useRecoilValue(foundWordsListExpandedAtom);
+interface Props {
+    letters: string[];
+    centerLetter: string;
+    answersListExpanded: boolean;
+}
+
+function Controls(props: Props) {
+
 
     return (
         <StyledControlsWrapper>
-            <StyledControls expanded={foundWordsListExpanded}>
+            <StyledControls expanded={props.answersListExpanded}>
                 <MessageBox />
                 <HiveInput />
-                <HiveContainer />
+                <HiveContainer {...props} />
                 <HiveActions />
             </StyledControls> 
         </StyledControlsWrapper>
