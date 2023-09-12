@@ -24,15 +24,13 @@ async function scrapeSpellingBee(){
 
     const gameData = await page.evaluate(`window.gameData.pastPuzzles.lastWeek[0]`);
     
-    const { 
-        printDate: date,
-        centerLetter,
-        outerLetters: letters,
-        pangrams,
-        answers
-    } = gameData;
-
-    const words = answers.slice(pangrams.length);
+    const date = new Date(gameData.printDate).toISOString();
+    const centerLetter = capitalizeWord(gameData.centerLetter);
+    const letters = gameData.outerLetters.map(capitalizeWord);
+    const pangrams = gameData.pangrams.map(capitalizeWord);
+    const words = gameData.answers
+        .slice(pangrams.length)
+        .map(capitalizeWord);
 
     const requestObj = {
         date,
@@ -70,3 +68,10 @@ async function scrapeSpellingBee(){
 }
 
 scrapeSpellingBee();
+
+
+// Helpers
+
+function capitalizeWord(word) {
+    return word[0].toUpperCase() + word.substring(1);
+}
