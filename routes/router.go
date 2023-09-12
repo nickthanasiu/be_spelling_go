@@ -5,6 +5,7 @@ import (
 	"bespelling/services"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ func SetRouter() *gin.Engine {
 	router := gin.Default()
 
 	// Serve our static React app
-	router.Use(static.Serve("/", static.LocalFile("./client/build", true)))
+	router.Use(static.Serve("/*", static.LocalFile("./client/build", true)))
 
 	api := router.Group("/api")
 	{
@@ -70,7 +71,14 @@ func SetRouter() *gin.Engine {
 		})
 	}
 
-	router.NoRoute(func(c *gin.Context) { c.JSON(http.StatusNotFound, gin.H{}) })
+	router.NoRoute(func(ctx *gin.Context) {
+		if !strings.HasPrefix(ctx.Request.RequestURI, "/api") {
+			ctx.File("./client/build/index.html")
+			return
+		}
+
+		ctx.JSON(http.StatusNotFound, gin.H{})
+	})
 
 	return router
 }
