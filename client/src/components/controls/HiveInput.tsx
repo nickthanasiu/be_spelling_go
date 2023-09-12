@@ -1,25 +1,24 @@
 import { KeyboardEvent } from 'react';
 import styled, { css, keyframes } from 'styled-components';
-import { useRecoilValue, useRecoilState } from 'recoil';
-import { inputAtom, inputTouchedAtom } from '../../state';
-import { useUpdateInputState } from '../../hooks/useUpdateInputState';
-import { useBackspace } from '../../hooks/useBackspace';
-import { useShuffleLetters } from '../../hooks/useShuffleLetters';
+import { useRecoilState } from 'recoil';
+import { LetterObj, inputTouchedAtom } from '../../state';
 import { useKeyPressListener } from '../../hooks/useKeyPressListener';
 import { useSubmitWord } from '../../hooks/useSubmitWord';
 import { isCharacterLetter } from '../../utils/isCharacterLetter';
 import Letter from './Letter';
 
+interface Props {
+    input: LetterObj[];
+    setInput: any;
+    backspace: any;
+    shuffle: any;
+}
 
-function HiveInput() {
+function HiveInput({ input, setInput, backspace, shuffle }: Props) {
 
-    const inputState = useRecoilValue(inputAtom);
-    const updateInputState = useUpdateInputState();
     const [inputTouched, setInputTouched]=  useRecoilState(inputTouchedAtom);
-    const hasContent = inputState.length > 0;
+    const hasContent = input.length > 0;
 
-    const backspace = useBackspace();
-    const shuffle = useShuffleLetters();
     const submit = useSubmitWord();
 
     const keyPressHandler = ({ key }: KeyboardEvent<Window>) => {
@@ -48,7 +47,7 @@ function HiveInput() {
 
         } else if (isCharacterLetter(key)) {
             
-            updateInputState(key);
+            setInput(key);
 
             if (!inputTouched) {
                 setInputTouched(true);
@@ -67,7 +66,7 @@ function HiveInput() {
             
             <InputContent className="hive-input-content" hasContent={hasContent}>
                 {!inputTouched && <InputPlaceholder>Type or click</InputPlaceholder>}
-                {inputState.map((letterObj, i) => (
+                {input.map((letterObj, i) => (
                     <Letter key={i} letterObj={letterObj} />
                 ))}
             </InputContent>

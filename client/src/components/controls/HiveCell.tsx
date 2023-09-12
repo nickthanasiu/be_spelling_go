@@ -2,16 +2,15 @@ import React from 'react';
 import styled from 'styled-components';
 import { useRecoilState } from 'recoil';
 import { inputTouchedAtom } from '../../state';
-import { useUpdateInputState } from "../../hooks/useUpdateInputState";
 
 interface Props {
+    setInput: any;
     letter: string;
     isCenter?: boolean;
 }
-const HiveCell = ({ letter, isCenter }: Props) => {
+const HiveCell = ({ letter, isCenter, setInput }: Props) => {
     
     const [inputTouched, setInputTouched] = useRecoilState(inputTouchedAtom);
-    const updateInputState = useUpdateInputState()
     
     const onClick = ({ target }: React.MouseEvent<SVGSVGElement>) => {
       
@@ -19,7 +18,7 @@ const HiveCell = ({ letter, isCenter }: Props) => {
         const textElement = polygon.nextElementSibling as SVGTextElement;
         const text = textElement.textContent as string;
 
-        updateInputState(text);
+        setInput(text);
         
         if (!inputTouched) {
             setInputTouched(true);

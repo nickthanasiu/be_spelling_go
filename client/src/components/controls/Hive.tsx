@@ -2,18 +2,18 @@ import styled from 'styled-components';
 import HiveCell from './HiveCell';
 
 interface Props {
+    setInput?: any;
     centerLetter: string;
     letters: string[];
 }
 
-const Hive = ({ centerLetter, letters }: Props) => {
-    
+const Hive = ({ setInput, centerLetter, letters }: Props) => {    
     return (
         <StyledHiveWrapper>
             <StyledHive className="hive">
-                <HiveCell letter={centerLetter} isCenter />
+                <HiveCell setInput={setInput} letter={centerLetter} isCenter />
                 {letters.map((letter, i) => (
-                    <HiveCell key={i} letter={letter} />
+                    <HiveCell setInput={setInput} key={i} letter={letter} />
                 ))}
             </StyledHive>
         </StyledHiveWrapper>
